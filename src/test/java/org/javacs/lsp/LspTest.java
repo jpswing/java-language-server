@@ -42,8 +42,8 @@ public class LspTest {
 
     @Test
     public void writeResponse() {
-        LSP.respond(writer, 1, 2);
-        var expected = "Content-Length: 35\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":2}";
+        LSP.respond(writer, "1", 2);
+        var expected = "Content-Length: 35\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"result\":2}";
         assertThat(bufferToString(), equalTo(expected));
     }
 
@@ -57,22 +57,22 @@ public class LspTest {
 
     @Test
     public void writeMultibyteCharacters() {
-        LSP.respond(writer, 1, "🔥");
-        var expected = "Content-Length: 40\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"🔥\"}";
+        LSP.respond(writer, "1", "🔥");
+        var expected = "Content-Length: 40\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"result\":\"🔥\"}";
         assertThat(bufferToString(), equalTo(expected));
     }
 
     @Test
     public void writeOptional() {
-        LSP.respond(writer, 1, Optional.of(1));
-        var expected = "Content-Length: 35\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":1}";
+        LSP.respond(writer, "1", Optional.of(1));
+        var expected = "Content-Length: 35\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"result\":1}";
         assertThat(bufferToString(), equalTo(expected));
     }
 
     @Test
     public void writeEmpty() {
-        LSP.respond(writer, 1, Optional.empty());
-        var expected = "Content-Length: 38\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":null}";
+        LSP.respond(writer, "1", Optional.empty());
+        var expected = "Content-Length: 38\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":\"1\",\"result\":null}";
         assertThat(bufferToString(), equalTo(expected));
     }
 

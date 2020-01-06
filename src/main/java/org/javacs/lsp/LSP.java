@@ -110,7 +110,7 @@ public class LSP {
     }
 
     @SuppressWarnings("unchecked")
-    static void respond(OutputStream client, int requestId, Object params) {
+    static void respond(OutputStream client, String requestId, Object params) {
         if (params instanceof ResponseError) {
             throw new RuntimeException("Errors should be sent using LSP.error(...)");
         }
@@ -119,13 +119,19 @@ public class LSP {
             params = option.orElse(null);
         }
         var jsonText = toJson(params);
-        var messageText = String.format("{\"jsonrpc\":\"2.0\",\"id\":%d,\"result\":%s}", requestId, jsonText);
+        var messageText = String.format("{\"jsonrpc\":\"2.0\",\"id\":\"%s\",\"result\":%s}", requestId, jsonText);
         writeClient(client, messageText);
     }
 
     static void error(OutputStream client, int requestId, ResponseError error) {
         var jsonText = toJson(error);
         var messageText = String.format("{\"jsonrpc\":\"2.0\",\"id\":%d,\"error\":%s}", requestId, jsonText);
+        writeClient(client, messageText);
+    }
+
+    static void error(OutputStream client, String requestId, ResponseError error) {
+        var jsonText = toJson(error);
+        var messageText = String.format("{\"jsonrpc\":\"2.0\",\"id\":\"%s\",\"error\":%s}", requestId, jsonText);
         writeClient(client, messageText);
     }
 
@@ -185,8 +191,8 @@ public class LSP {
                 if (message.method.equals("$/cancelRequest")) {
                     var params = gson.fromJson(message.params, CancelParams.class);
                     var removed = pending.removeIf(r -> r.id != null && r.id.equals(params.id));
-                    if (removed) LOG.info(String.format("Cancelled request %d, which had not yet started", params.id));
-                    else LOG.info(String.format("Cannot cancel request %d because it has already started", params.id));
+                    if (removed) LOG.info(String.format("Cancelled request %s, which had not yet started", params.id));
+                    else LOG.info(String.format("Cannot cancel request %s because it has already started", params.id));
                 }
             }
 

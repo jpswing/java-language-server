@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 
 public class Message {
     public String jsonrpc;
-    public Integer id;
+    public String id;
     public String method;
     public JsonElement params;
 }
