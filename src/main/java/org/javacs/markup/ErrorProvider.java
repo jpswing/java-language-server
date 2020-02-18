@@ -52,7 +52,7 @@ public class ErrorProvider {
         for (var unusedEl : warnUnused.notUsed()) {
             try {
                 result.add(warnUnused(unusedEl));
-            } catch (NullPointerException ignored) { }
+            } catch (StringIndexOutOfBoundsException | NullPointerException ignored) { }
         }
         return result;
     }
