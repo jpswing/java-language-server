@@ -50,7 +50,9 @@ public class ErrorProvider {
         var warnUnused = new WarnUnused(task.task);
         warnUnused.scan(root, null);
         for (var unusedEl : warnUnused.notUsed()) {
-            result.add(warnUnused(unusedEl));
+            try {
+                result.add(warnUnused(unusedEl));
+            } catch (NullPointerException ignored) { }
         }
         return result;
     }
