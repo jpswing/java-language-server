@@ -4,6 +4,9 @@
 	"scopeName": "source.java",
 	"patterns": [
 		{
+			"include": "#class-declaration"
+		},
+		{
 			"include": "#annotations"
 		},
 		{
@@ -11,12 +14,151 @@
 		},
 		{
 			"include": "#comments"
-		},
-		{
-			"include": "#constants"
 		}
 	],
 	"repository": {
+		"class-declaration": {
+			"patterns": [
+				{
+					"begin": "\\b(class|interface|enum)\\b",
+					"end": "}",
+					"name": "meta.class-declaration",
+					"beginCaptures": {
+						"1": {
+							"name": "keyword.class"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#keywords"
+						},
+						{
+							"include": "#comments"
+						},
+						{
+							"match": "\\b([a-z]\\w*\\.)*([A-Z]\\w*)\\b",
+							"captures": {
+								"2": {
+									"name": "entity.name.type"
+								}
+							}
+						},
+						{
+							"begin": "{",
+							"end": "(?=})",
+							"name": "meta.class-body",
+							"patterns": [
+								{
+									"include": "#class-declaration"
+								},
+								{
+									"include": "#field-initializer"
+								},
+								{
+									"include": "#method-declaration"
+								},
+								{
+									"include": "#type-parameters-declaration"
+								},
+								{
+									"include": "#block"
+								},
+								{
+									"include": "#annotations"
+								},
+								{
+									"include": "#keywords"
+								},
+								{
+									"include": "#comments"
+								},
+								{
+									"include": "#types"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		"field-initializer": {
+			"patterns": [
+				{
+					"begin": "\\=",
+					"end": ";",
+					"name": "meta.field-initializer",
+					"patterns": [
+						{
+							"include": "#expressions"
+						}
+					]
+				}
+			]
+		},
+		"method-declaration": {
+			"patterns": [
+				{
+					"begin": "(\\w+)\\(",
+					"end": "\\)",
+					"name": "meta.method-declaration",
+					"beginCaptures": {
+						"1": {
+							"name": "entity.name.function"
+						}
+					},
+					"patterns": [
+						{
+							"include": "#annotations"
+						},
+						{
+							"include": "#keywords"
+						},
+						{
+							"include": "#comments"
+						},
+						{
+							"include": "#types"
+						}
+					]
+				}
+			]
+		},
+		"type-parameters-declaration": {
+			"match": "<[^<>]+>",
+			"name": "meta.type-parameters-declaration",
+			"captures": {
+				"0": {
+					"patterns": [
+						{
+							"include": "#keywords"
+						},
+						{
+							"include": "#comments"
+						},
+						{
+							"match": "\\b([A-Z]\\w*)\\b",
+							"name": "entity.name.type"
+						}
+					]
+				}
+			}
+		},
+		"block": {
+			"begin": "{",
+			"end": "}",
+			"name": "meta.block",
+			"patterns": [
+				{
+					"include": "#block"
+				},
+				{
+					"include": "#types"
+				},
+				{
+					"include": "#expressions"
+				}
+			]
+		},
 		"annotations": {
 			"patterns": [
 				{
@@ -65,6 +207,37 @@
 				}
 			]
 		},
+		"expressions": {
+			"patterns": [
+				{
+					"include": "#keywords"
+				},
+				{
+					"include": "#comments"
+				},
+				{
+					"include": "#constants"
+				},
+				{
+					"include": "#type-arguments"
+				},
+				{
+					"include": "#parens"
+				},
+				{
+					"begin": "\\(",
+					"end": "\\)",
+					"patterns": [
+						{
+							"include": "#expressions"
+						}
+					]
+				},
+				{
+					"include": "#new"
+				}
+			]
+		},
 		"keywords":  {
 			"patterns": [
 				{
@@ -80,15 +253,11 @@
 					"name": "keyword.package"
 				},
 				{
-					"match": "\\b(class|interface|enum)\\b",
-					"name": "keyword.class"
-				},
-				{
 					"match": "\\b(try|catch|finally|throw|throws|return|break|continue|do|for|while|switch|case|if|else|goto|synchronize|assert)\\b",
 					"name": "keyword.control"
 				},
 				{
-					"match": "\\b(new|instanceof)\\b",
+					"match": "\\b(instanceof)\\b",
 					"name": "keyword.control"
 				},
 				{
@@ -186,6 +355,138 @@
 							"name": "constant.character.escape"
 						}
 					]
+				}
+			]
+		},
+		"types": {
+			"patterns": [
+				{
+					"match": "\\b([a-z]\\w*\\.)*([A-Z]\\w*) +(?=\\w)",
+					"captures": {
+						"2": {
+							"name": "entity.name.type"
+						}
+					}
+				},
+				{
+					"match": "\\b([a-z]\\w*\\.)*([A-Z]\\w*) *(\\[\\])+",
+					"captures": {
+						"2": {
+							"name": "entity.name.type"
+						}
+					}
+				},
+				{
+					"match": "\\b(\\w+) *(?<GROUP><([^<>]|\\g<GROUP>)*>)",
+					"captures": {
+						"1": {
+							"name": "entity.name.type"
+						},
+						"2": {
+							"name": "meta.type-parameters-declaration",
+							"patterns": [
+								{
+									"include": "#keywords"
+								},
+								{
+									"include": "#comments"
+								},
+								{
+									"match": "\\b([a-z]\\w*\\.)*([A-Z]\\w*)\\b",
+									"captures": {
+										"2": {
+											"name": "entity.name.type"
+										}
+									}
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		"new": {
+			"begin": "\\b(new)\\b",
+			"end": "(?=;|\\)|\\.|,|:|}|=)",
+			"name": "meta.new",
+			"captures": {
+				"1": {
+					"name": "keyword.control"
+				}
+			},
+			"patterns": [
+				{
+					"include": "#expressions"
+				},
+				{
+					"match": "\\b([a-z]\\w*\\.)*([A-Z]\\w*)\\b",
+					"captures": {
+						"2": {
+							"name": "entity.name.type"
+						}
+					}
+				},
+				{
+					"begin": "{",
+					"end": "}",
+					"name": "meta.anonymous-class",
+					"patterns": [
+						{
+							"include": "#class-declaration"
+						},
+						{
+							"include": "#field-initializer"
+						},
+						{
+							"include": "#method-declaration"
+						},
+						{
+							"include": "#type-parameters-declaration"
+						},
+						{
+							"include": "#block"
+						},
+						{
+							"include": "#annotations"
+						},
+						{
+							"include": "#keywords"
+						},
+						{
+							"include": "#comments"
+						},
+						{
+							"include": "#types"
+						}
+					]
+				}
+			]
+		},
+		"type-arguments": {
+			"patterns": [
+				{
+					"match": "\\.(?<GROUP><([^<>]|\\g<GROUP>)*>)",
+					"name": "meta.type-arguments",
+					"captures": {
+						"1": {
+							"patterns": [
+								{
+									"include": "#keywords"
+								},
+								{
+									"include": "#comments"
+								},
+								{
+									"match": "\\b([a-z]\\w*\\.)*([A-Z]\\w*)\\b",
+									"captures": {
+										"2": {
+											"name": "entity.name.type"
+										}
+									}
+								}
+							]
+						}
+					}
 				}
 			]
 		}

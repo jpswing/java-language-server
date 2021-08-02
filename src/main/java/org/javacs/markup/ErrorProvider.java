@@ -38,7 +38,7 @@ public class ErrorProvider {
     private List<org.javacs.lsp.Diagnostic> compilerErrors(CompilationUnitTree root) {
         var result = new ArrayList<org.javacs.lsp.Diagnostic>();
         for (var d : task.diagnostics) {
-            if (!d.getSource().toUri().equals(root.getSourceFile().toUri())) continue;
+            if (d.getSource() == null || !d.getSource().toUri().equals(root.getSourceFile().toUri())) continue;
             if (d.getStartPosition() == -1 || d.getEndPosition() == -1) continue;
             result.add(lspDiagnostic(d, root.getLineMap()));
         }
@@ -59,10 +59,10 @@ public class ErrorProvider {
 
     private List<org.javacs.lsp.Diagnostic> notThrownWarnings(CompilationUnitTree root) {
         var result = new ArrayList<org.javacs.lsp.Diagnostic>();
-        var notThrown = new HashMap<String, TreePath>();
+        var notThrown = new HashMap<TreePath, String>();
         new WarnNotThrown(task.task).scan(root, notThrown);
-        for (var name : notThrown.keySet()) {
-            result.add(warnNotThrown(name, notThrown.get(name)));
+        for (var location : notThrown.keySet()) {
+            result.add(warnNotThrown(notThrown.get(location), location));
         }
         return result;
     }
@@ -123,6 +123,9 @@ public class ErrorProvider {
     private org.javacs.lsp.Diagnostic warnUnused(Element unusedEl) {
         var trees = Trees.instance(task.task);
         var path = trees.getPath(unusedEl);
+        if (path == null) {
+            throw new RuntimeException(unusedEl + " has no path");
+        }
         var root = path.getCompilationUnit();
         var leaf = path.getLeaf();
         var pos = trees.getSourcePositions();
