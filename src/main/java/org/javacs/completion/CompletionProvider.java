@@ -581,7 +581,7 @@ public class CompletionProvider {
 
     private CompletionItem classItem(String className) {
         var i = new CompletionItem();
-        i.label = simpleName(className).toString();
+        i.label = simpleName(className).toString() + " - " + className;
         i.kind = CompletionItemKind.Class;
         i.detail = className;
         var data = new CompletionData();
@@ -613,7 +613,7 @@ public class CompletionProvider {
     private CompletionItem method(CompileTask task, List<ExecutableElement> overloads, boolean addParens) {
         var first = overloads.get(0);
         var i = new CompletionItem();
-        i.label = first.getSimpleName().toString();
+        i.label = first + " : " + first.getReturnType();
         i.kind = CompletionItemKind.Method;
         i.detail = first.getReturnType() + " " + first;
         var data = data(task, first, overloads.size());
