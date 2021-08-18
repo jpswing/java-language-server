@@ -587,6 +587,8 @@ public class CompletionProvider {
         var data = new CompletionData();
         data.className = className;
         i.data = JsonHelper.GSON.toJsonTree(data);
+        i.insertText = simpleName(className).toString();
+        i.insertTextFormat = InsertTextFormat.PlainText;
         return i;
     }
 
